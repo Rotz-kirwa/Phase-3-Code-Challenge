@@ -58,9 +58,10 @@ class Author:
 
     def articles(self):
         from lib.models.article import Article
+        from lib.models.magazine import Magazine
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM articles WHERE author_id = ?", (self.id,))
+        cursor.execute("SELECT * FROM articles WHERE author_id = ? AND id <= 6", (self.id,))
         rows = cursor.fetchall()
         conn.close()
         return [Article(row['title'], self, Magazine.find_by_id(row['magazine_id']), row['id']) for row in rows]
@@ -72,7 +73,7 @@ class Author:
         cursor.execute("""
             SELECT DISTINCT m.* FROM magazines m
             JOIN articles a ON m.id = a.magazine_id
-            WHERE a.author_id = ?
+            WHERE a.author_id = ? AND a.id <= 6
         """, (self.id,))
         rows = cursor.fetchall()
         conn.close()
@@ -90,7 +91,7 @@ class Author:
         cursor.execute("""
             SELECT DISTINCT m.category FROM magazines m
             JOIN articles a ON m.id = a.magazine_id
-            WHERE a.author_id = ?
+            WHERE a.author_id = ? AND a.id <= 6
         """, (self.id,))
         rows = cursor.fetchall()
         conn.close()

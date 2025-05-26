@@ -7,6 +7,12 @@ from lib.db.connection import get_connection
 def seed_data():
     conn = get_connection()
     try:
+        conn.execute("DELETE FROM articles")
+        conn.execute("DELETE FROM authors")
+        conn.execute("DELETE FROM magazines")
+        conn.execute("DELETE FROM sqlite_sequence")
+        conn.commit()
+        
         conn.execute("BEGIN TRANSACTION")
         
         # Create authors

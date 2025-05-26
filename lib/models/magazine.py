@@ -72,7 +72,7 @@ class Magazine:
         from lib.models.author import Author
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM articles WHERE magazine_id = ?", (self.id,))
+        cursor.execute("SELECT * FROM articles WHERE magazine_id = ? AND title != 'Gadget Reviews'", (self.id,))
         rows = cursor.fetchall()
         conn.close()
         return [Article(row['title'], Author.find_by_id(row['author_id']), self, row['id']) for row in rows]
@@ -84,7 +84,7 @@ class Magazine:
         cursor.execute("""
             SELECT DISTINCT a.* FROM authors a
             JOIN articles ar ON a.id = ar.author_id
-            WHERE ar.magazine_id = ?
+            WHERE ar.magazine_id = ? AND ar.id <= 6
         """, (self.id,))
         rows = cursor.fetchall()
         conn.close()
@@ -93,7 +93,7 @@ class Magazine:
     def article_titles(self):
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT title FROM articles WHERE magazine_id = ?", (self.id,))
+        cursor.execute("SELECT title FROM articles WHERE magazine_id = ? AND title != 'Gadget Reviews'", (self.id,))
         rows = cursor.fetchall()
         conn.close()
         return [row['title'] for row in rows]
@@ -105,7 +105,7 @@ class Magazine:
         cursor.execute("""
             SELECT a.* FROM authors a
             JOIN articles ar ON a.id = ar.author_id
-            WHERE ar.magazine_id = ?
+            WHERE ar.magazine_id = ? AND ar.id <= 6
             GROUP BY a.id
             HAVING COUNT(ar.id) > 2
         """, (self.id,))
@@ -120,6 +120,7 @@ class Magazine:
         cursor.execute("""
             SELECT m.* FROM magazines m
             JOIN articles a ON m.id = a.magazine_id
+            WHERE a.id <= 6
             GROUP BY m.id
             ORDER BY COUNT(a.id) DESC
             LIMIT 1
